@@ -1,0 +1,25 @@
+.App {
+
+}
+
+/* 
+scrollbar custom */
+::-webkit-scrollbar {
+    width: 0px;
+  }
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: var(--inputColor);
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 2px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--paraColor);
+  }
+  

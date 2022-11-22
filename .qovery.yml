@@ -1,0 +1,11 @@
+application:
+  name: market-data-client
+  project: market-data-react
+  cloud_region: aws/ap-south-1
+  publicly_accessible: true
+routers:
+- name: main
+  routes:
+  - application_name: market-data-client
+    paths:
+    - /*
