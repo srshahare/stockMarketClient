@@ -24,7 +24,7 @@ function App() {
   const [isAuth, setAuth] = useState(false)
 
   const reqEmail = "saidulushaik24@gmail.com"
-  const reqPass = "Saidulu@199"
+  const reqPass = "Sushma@123"
 
   const handleLogin = (values: any) => {
     const { username, password } = values;
