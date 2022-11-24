@@ -72,7 +72,8 @@ const Home = () => {
             const data = {
                 requestType: requestType,
                 exchange: key,
-                duration: duration
+                duration: duration,
+                subscribe: true,
             }
             client.send(JSON.stringify(data));
         } else {
@@ -91,7 +92,8 @@ const Home = () => {
         const data = {
             requestType: requestType,
             exchange: exchange,
-            duration: e
+            duration: e,
+            subscribe: true,
         }
         client.send(JSON.stringify(data));
     }
@@ -108,7 +110,8 @@ const Home = () => {
         const data = {
             requestType: request,
             exchange: exchange,
-            duration: duration
+            duration: duration,
+            subscribe: true,
         }
         client.send(JSON.stringify(data));
     }
@@ -117,7 +120,8 @@ const Home = () => {
         const data = {
             requestType: requestType,
             exchange: exchange,
-            duration: duration
+            duration: duration,
+            subscribe: true,
         }
         client.send(JSON.stringify(data));
     }

@@ -15,13 +15,14 @@ export const initSocket = () => {
         console.log("websocket client connected");
         dispatch({
           type: ActionTypes.CONNECTION_SUCCESS,
-          payload: client
-        })
+          payload: client,
+        });
         setTimeout(() => {
           const data = {
             requestType: "GetMinuteData",
             exchange: "NIFTY",
-            duration: "15"
+            duration: "15",
+            subscribe: true,
           };
           client.send(JSON.stringify(data));
         }, 2000);
@@ -30,30 +31,30 @@ export const initSocket = () => {
       client.onmessage = (message) => {
         const data = JSON.parse(message.data);
         console.log(data);
-        if(data.MessageType === "GetMinuteData") {
-          if(data.Request.Exchange === "NIFTY") {
+        if (data.MessageType === "GetMinuteData") {
+          if (data.Request.Exchange === "NIFTY") {
             dispatch({
               type: ActionTypes.FETCH_DATA_COMPLETE,
               payload: data.Result,
             });
-          }else if (data.Request.Exchange === "BANKNIFTY") {
+          } else if (data.Request.Exchange === "BANKNIFTY") {
             dispatch({
               type: ActionTypes.FETCH_DATA_COMPLETE_BANK,
-              payload: data.Result
-            })
+              payload: data.Result,
+            });
           }
         }
         if (data.MessageType === "GetTickData") {
-          if(data.Request.Exchange === "NIFTY") {
+          if (data.Request.Exchange === "NIFTY") {
             dispatch({
               type: ActionTypes.FETCH_TICK_DATA_COMPLETE,
               payload: data.Result,
             });
-          }else if (data.Request.Exchange === "BANKNIFTY") {
+          } else if (data.Request.Exchange === "BANKNIFTY") {
             dispatch({
               type: ActionTypes.FETCH_TICK_DATA_COMPLETE_BANK,
-              payload: data.Result
-            })
+              payload: data.Result,
+            });
           }
         }
       };
