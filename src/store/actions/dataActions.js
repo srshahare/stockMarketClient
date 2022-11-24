@@ -9,7 +9,7 @@ export const initSocket = () => {
         payload: null,
       });
 
-      const client = new W3CWebSocket("ws://localhost:5000/marketData");
+      const client = new W3CWebSocket("ws://ec2-65-2-75-232.ap-south-1.compute.amazonaws.com:5000//marketData");
 
       client.onopen = () => {
         console.log("websocket client connected");
@@ -30,7 +30,6 @@ export const initSocket = () => {
 
       client.onmessage = (message) => {
         const data = JSON.parse(message.data);
-        console.log(data);
         if (data.MessageType === "GetMinuteData") {
           if (data.Request.Exchange === "NIFTY") {
             dispatch({

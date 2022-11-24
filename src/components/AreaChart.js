@@ -84,6 +84,7 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
       xaxis: {
         labels: {
           datetimeUTC: false,
+          format: 'hh:mm'
         },
         type: "datetime",
         // tickAmount: 356,

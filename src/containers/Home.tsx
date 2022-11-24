@@ -166,6 +166,7 @@ const Home = () => {
                                         {
                                             value: '30',
                                             label: '30 Sec',
+                                            disabled: true
                                         },
                                         {
                                             value: '60',
