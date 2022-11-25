@@ -30,7 +30,7 @@
     "websocket": "^1.0.34"
   },
   "scripts": {
-    "start": "serve -s build",
+    "start": "serve -s -n build",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
