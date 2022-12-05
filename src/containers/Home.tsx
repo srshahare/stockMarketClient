@@ -63,7 +63,7 @@ const Home = () => {
     const [requestType, setRequestType] = useState("GetMinuteData")
 
     const chartData = useSelector((state: any) => state.data);
-    const { tickData, tickDataBank, minuteData, minuteDataBank, callDone, client } = chartData
+    const { tickData, tickDataBank, minuteData, minuteDataBank, callDone, client, loading } = chartData
 
     const onClick: MenuProps['onClick'] = e => {
         const key = e.key;
@@ -80,7 +80,6 @@ const Home = () => {
             setChartType(key)
         }
     }
-
     useEffect(() => {
         if (!callDone) {
             initSocket()
@@ -117,13 +116,16 @@ const Home = () => {
     }
 
     const handleRefresh = () => {
-        const data = {
-            requestType: requestType,
-            exchange: exchange,
-            duration: duration,
-            subscribe: true,
+        if(client === null) {
+            initSocket();
         }
-        client.send(JSON.stringify(data));
+        // const data = {
+        //     requestType: requestType,
+        //     exchange: exchange,
+        //     duration: duration,
+        //     subscribe: true,
+        // }
+        // client.send(JSON.stringify(data));
     }
 
     return (
@@ -166,7 +168,7 @@ const Home = () => {
                                         {
                                             value: '30',
                                             label: '30 Sec',
-                                            disabled: true
+                                            // disabled: true
                                         },
                                         {
                                             value: '60',
@@ -206,7 +208,7 @@ const Home = () => {
                     <Menu.SubMenu title="Action" key="Action" icon={<ClockCircleOutlined />} >
                         <div className="layout-filter-container mb2 center">
                             <h3 className="mb2">INDEX: {exchange === "NIFTY" ? "NIFTY 50": "NIFTY BANK"}</h3>
-                            <Button onClick={handleRefresh} type="primary">Refresh Data</Button>
+                            <Button onClick={handleRefresh} disabled={client !== null} loading={loading} type="primary">Refresh Data</Button>
                         </div>
                     </Menu.SubMenu>
                 </Menu>

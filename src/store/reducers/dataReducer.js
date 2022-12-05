@@ -37,14 +37,27 @@ const chartState = {
   callDone: false,
   client: null,
   loading: false,
+  error: ""
 };
 
 const dataReducer = (state = chartState, action) => {
+  const month = moment().month();
+  const date = moment().date();
+  const year = moment().year();
+  let endTime = moment([year, month, date, 15, 30, 0, 0]).unix();
+
   switch (action.type) {
     case ActionTypes.CONNECTION_SUCCESS:
       return {
         ...state,
         client: action.payload,
+        loading: false
+      };
+    case ActionTypes.CONNECTION_CLOSED:
+      return {
+        ...state,
+        client: null,
+        error: "Connection Closed! Please Click On Refresh Button!"
       };
     case ActionTypes.FETCH_DATA_INIT:
       return {
@@ -53,7 +66,7 @@ const dataReducer = (state = chartState, action) => {
         callDone: true,
       };
     case ActionTypes.FETCH_DATA_COMPLETE:
-      const data = action.payload;
+      let data = action.payload;
       if (data) {
         if (data.constructor === Array) {
           let callData = [];
@@ -61,7 +74,8 @@ const dataReducer = (state = chartState, action) => {
           let callDataPer = [];
           let putDataPer = [];
           let tradeTime = [];
-          data.map((item) => {
+          const filteredData = data.filter((t) => t.tradeTime <= endTime);
+          filteredData.map((item) => {
             let { CE, PE } = item;
             const timestamp = moment.unix(item.tradeTime);
             callData.push([timestamp, CE.Volume]);
@@ -85,30 +99,32 @@ const dataReducer = (state = chartState, action) => {
           };
         } else {
           let { CE, PE, tradeTime } = data;
-          const timestamp = moment.unix(tradeTime);
-          const callData = [...state.minuteData.CE, [timestamp, CE.Volume]];
-          const pullData = [...state.minuteData.PE, [timestamp, PE.Volume]];
-          const callDataPer = [
-            ...state.minuteData.CEPercent,
-            [timestamp, CE.PercentVolume],
-          ];
-          const putDataPer = [
-            ...state.minuteData.PEPercent,
-            [timestamp, PE.PercentVolume],
-          ];
-          return {
-            ...state,
-            minuteData: {
-              ...state.minuteData,
-              CE: callData,
-              PE: pullData,
-              CEPercent: callDataPer,
-              PEPercent: putDataPer,
-              tradeTime: [...state.minuteData.tradeTime, timestamp],
+          if (tradeTime <= endTime) {
+            const timestamp = moment.unix(tradeTime);
+            const callData = [...state.minuteData.CE, [timestamp, CE.Volume]];
+            const pullData = [...state.minuteData.PE, [timestamp, PE.Volume]];
+            const callDataPer = [
+              ...state.minuteData.CEPercent,
+              [timestamp, CE.PercentVolume],
+            ];
+            const putDataPer = [
+              ...state.minuteData.PEPercent,
+              [timestamp, PE.PercentVolume],
+            ];
+            return {
+              ...state,
+              minuteData: {
+                ...state.minuteData,
+                CE: callData,
+                PE: pullData,
+                CEPercent: callDataPer,
+                PEPercent: putDataPer,
+                tradeTime: [...state.minuteData.tradeTime, timestamp],
+                loading: false,
+              },
               loading: false,
-            },
-            loading: false,
-          };
+            };
+          }
         }
       } else {
         return {
@@ -125,7 +141,8 @@ const dataReducer = (state = chartState, action) => {
           let callDataPer = [];
           let putDataPer = [];
           let tradeTime = [];
-          bankData.map((item) => {
+          const filteredData = bankData.filter((t) => t.tradeTime <= endTime);
+          filteredData.map((item) => {
             let { CE, PE } = item;
             const timestamp = moment.unix(item.tradeTime);
             callData.push([timestamp, CE.Volume]);
@@ -149,30 +166,38 @@ const dataReducer = (state = chartState, action) => {
           };
         } else {
           let { CE, PE, tradeTime } = bankData;
-          const timestamp = moment.unix(tradeTime);
-          const callData = [...state.minuteDataBank.CE, [timestamp, CE.Volume]];
-          const pullData = [...state.minuteDataBank.PE, [timestamp, PE.Volume]];
-          const callDataPer = [
-            ...state.minuteDataBank.CEPercent,
-            [timestamp, CE.PercentVolume],
-          ];
-          const putDataPer = [
-            ...state.minuteDataBank.PEPercent,
-            [timestamp, PE.PercentVolume],
-          ];
-          return {
-            ...state,
-            minuteDataBank: {
-              ...state.minuteDataBank,
-              CE: callData,
-              PE: pullData,
-              CEPercent: callDataPer,
-              PEPercent: putDataPer,
-              tradeTime: [...state.minuteDataBank.tradeTime, timestamp],
+          if (tradeTime <= endTime) {
+            const timestamp = moment.unix(tradeTime);
+            const callData = [
+              ...state.minuteDataBank.CE,
+              [timestamp, CE.Volume],
+            ];
+            const pullData = [
+              ...state.minuteDataBank.PE,
+              [timestamp, PE.Volume],
+            ];
+            const callDataPer = [
+              ...state.minuteDataBank.CEPercent,
+              [timestamp, CE.PercentVolume],
+            ];
+            const putDataPer = [
+              ...state.minuteDataBank.PEPercent,
+              [timestamp, PE.PercentVolume],
+            ];
+            return {
+              ...state,
+              minuteDataBank: {
+                ...state.minuteDataBank,
+                CE: callData,
+                PE: pullData,
+                CEPercent: callDataPer,
+                PEPercent: putDataPer,
+                tradeTime: [...state.minuteDataBank.tradeTime, timestamp],
+                loading: false,
+              },
               loading: false,
-            },
-            loading: false,
-          };
+            };
+          }
         }
       } else {
         return {
@@ -189,7 +214,8 @@ const dataReducer = (state = chartState, action) => {
           let callDataPer = [];
           let putDataPer = [];
           let tradeTime = [];
-          tickData.map((item) => {
+          const filteredData = tickData.filter((t) => t.tradeTime <= endTime);
+          filteredData.map((item) => {
             let { CE, PE } = item;
             const timestamp = moment.unix(item.tradeTime);
             callData.push([timestamp, CE.Volume]);
@@ -213,20 +239,32 @@ const dataReducer = (state = chartState, action) => {
           };
         } else {
           let { CE, PE, tradeTime } = tickData;
-          const timestamp = moment.unix(tradeTime);
-          const callData = [...state.tickData.CE, [timestamp, CE.Volume]];
-          const pullData = [...state.tickData.PE, [timestamp, PE.Volume]];
-          return {
-            ...state,
-            tickData: {
-              ...state.tickData,
-              CE: callData,
-              PE: pullData,
-              tradeTime: [...state.tickData.tradeTime, timestamp],
+          if (tradeTime <= endTime) {
+            const timestamp = moment.unix(tradeTime);
+            const callData = [...state.tickData.CE, [timestamp, CE.Volume]];
+            const pullData = [...state.tickData.PE, [timestamp, PE.Volume]];
+            const callDataPer = [
+              ...state.tickData.CEPercent,
+              [timestamp, CE.PercentVolume],
+            ];
+            const putDataPer = [
+              ...state.tickData.PEPercent,
+              [timestamp, PE.PercentVolume],
+            ];
+            return {
+              ...state,
+              tickData: {
+                ...state.tickData,
+                CE: callData,
+                PE: pullData,
+                CEPercent: callDataPer,
+                PEPercent: putDataPer,
+                tradeTime: [...state.tickData.tradeTime, timestamp],
+                loading: false,
+              },
               loading: false,
-            },
-            loading: false,
-          };
+            };
+          }
         }
       } else {
         return {
@@ -243,7 +281,10 @@ const dataReducer = (state = chartState, action) => {
           let callDataPer = [];
           let putDataPer = [];
           let tradeTime = [];
-          tickDataBank.map((item) => {
+          const filteredData = tickDataBank.filter(
+            (t) => t.tradeTime <= endTime
+          );
+          filteredData.map((item) => {
             let { CE, PE } = item;
             const timestamp = moment.unix(item.tradeTime);
             callData.push([timestamp, CE.Volume]);
@@ -267,20 +308,32 @@ const dataReducer = (state = chartState, action) => {
           };
         } else {
           let { CE, PE, tradeTime } = tickDataBank;
-          const timestamp = moment.unix(tradeTime);
-          const callData = [...state.tickDataBank.CE, [timestamp, CE.Volume]];
-          const pullData = [...state.tickDataBank.PE, [timestamp, PE.Volume]];
-          return {
-            ...state,
-            tickDataBank: {
-              ...state.tickDataBank,
-              CE: callData,
-              PE: pullData,
-              tradeTime: [...state.tickDataBank.tradeTime, timestamp],
+          if (tradeTime <= endTime) {
+            const timestamp = moment.unix(tradeTime);
+            const callData = [...state.tickDataBank.CE, [timestamp, CE.Volume]];
+            const pullData = [...state.tickDataBank.PE, [timestamp, PE.Volume]];
+            const callDataPer = [
+              ...state.tickDataBank.CEPercent,
+              [timestamp, CE.PercentVolume],
+            ];
+            const putDataPer = [
+              ...state.tickDataBank.PEPercent,
+              [timestamp, PE.PercentVolume],
+            ];
+            return {
+              ...state,
+              tickDataBank: {
+                ...state.tickDataBank,
+                CE: callData,
+                PE: pullData,
+                CEPercent: callDataPer,
+                PEPercent: putDataPer,
+                tradeTime: [...state.tickDataBank.tradeTime, timestamp],
+                loading: false,
+              },
               loading: false,
-            },
-            loading: false,
-          };
+            };
+          }
         }
       } else {
         return {

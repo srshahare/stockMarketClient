@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import Chart from "react-apexcharts";
-import ApexCharts from "apexcharts";
 
 const TestChart = () => {
   const state = {

@@ -8,11 +8,11 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
     series: [
       {
         name: "CE",
-        data: chartType === "STD" ? CE: CEPercent,
+        data: chartType === "STD" ? CE : CEPercent,
       },
       {
         name: "PE",
-        data: chartType === "STD" ? PE: PEPercent,
+        data: chartType === "STD" ? PE : PEPercent,
       },
     ],
     options: {
@@ -39,19 +39,19 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
           },
         },
       },
-      noData: {  
-        text: "Loading...",  
-        align: 'center',  
-        verticalAlign: 'middle',  
-        offsetX: 0,  
-        offsetY: 0,  
-        style: {  
-          color: "#000000",  
-          fontSize: '24px',  
-          fontFamily: "Helvetica"  
-        }  
+      noData: {
+        text: "Loading...",
+        align: "center",
+        verticalAlign: "middle",
+        offsetX: 0,
+        offsetY: 0,
+        style: {
+          color: "#000000",
+          fontSize: "24px",
+          fontFamily: "Helvetica",
+        },
       },
-      colors: ['#00c853', '#d50000'],
+      colors: ["#00c853", "#d50000"],
       stroke: {
         curve: "smooth",
         width: 1.5,
@@ -84,7 +84,7 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
       xaxis: {
         labels: {
           datetimeUTC: false,
-          format: 'hh:mm'
+          format: "hh:mm",
         },
         type: "datetime",
         // tickAmount: 356,
@@ -95,18 +95,27 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
               title: {
                 text: `Call Volume (${chartType})`,
               },
+              labels: {
+                formatter: (value) => numFormatter(value),
+              },
             },
             {
               opposite: true,
               title: {
                 text: `Put Volume (${chartType})`,
               },
+              labels: {
+                formatter: (value) => numFormatter(value),
+              },
             },
           ]
         : [
             {
               title: {
-                text: chartType === "STD" ? "Volume": "Percent Volume",
+                text: chartType === "STD" ? "Volume" : "Percent Volume",
+              },
+              labels: {
+                formatter: (value) => numFormatter(value),
               },
             },
           ],
@@ -122,6 +131,16 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
       //   },
     },
   };
+
+  function numFormatter(num) {
+    if (num > 999 && num < 1000000) {
+      return (num / 1000).toFixed(1) + "K"; // convert to K for number from > 1000 < 1 million
+    } else if (num > 1000000) {
+      return (num / 1000000).toFixed(1) + "M"; // convert to M for number from > 1 million
+    } else if (num < 900) {
+      return num; // if value < 1000, nothing to do
+    }
+  }
 
   // useEffect(() => {
   //   setInterval(() => {
