@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import Chart from "react-apexcharts";
 import ApexCharts from "apexcharts";
 
-const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
+const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile }) => {
   const { CE, PE, CEPercent, PEPercent, tradeTime } = data;
   const state = {
     series: [
@@ -18,13 +18,13 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
     options: {
       chart: {
         toolbar: {
-          show: true,
+          show: isMobile ? false : true,
         },
         zoom: {
           autoScaleYaxis: true,
         },
         type: "area",
-        height: 680,
+        height: isMobile ? 350 : 680,
         animations: {
           enabled: true,
           easing: "easeinout",
@@ -56,22 +56,8 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
         curve: "smooth",
         width: 1.5,
       },
-      // fill: {
-      //   type: 'gradient',
-      //   gradient: {
-      //     shade: 'dark',
-      //     type: "horizontal",
-      //     shadeIntensity: 0.0,
-      //     gradientToColors: undefined, // optional, if not defined - uses the shades of same color in series
-      //     inverseColors: true,
-      //     opacityFrom: 0.6,
-      //     opacityTo: 0.6,
-      //     stops: [0, 50, 100],
-      //     colorStops: []
-      //   }
-      // },
       title: {
-        text: "Market Data (" + exchange + ")",
+        text: isMobile ? "" : "Market Data (" + exchange + ")",
         align: "left",
       },
       dataLabels: {
@@ -81,10 +67,16 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
         size: 0,
         style: "hollow",
       },
+      grid: {
+        padding: {
+          left: isMobile ? 8 : 8,
+        },
+      },
       xaxis: {
         labels: {
           datetimeUTC: false,
           format: "hh:mm",
+          offsetX: 0
         },
         type: "datetime",
         // tickAmount: 356,
@@ -98,6 +90,7 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
               labels: {
                 formatter: (value) => numFormatter(value),
               },
+              tickAmount: 10
             },
             {
               opposite: true,
@@ -107,16 +100,23 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
               labels: {
                 formatter: (value) => numFormatter(value),
               },
+              tickAmount: 10
             },
           ]
         : [
             {
               title: {
-                text: chartType === "STD" ? "Volume" : "Percent Volume",
+                text: isMobile
+                  ? ""
+                  : chartType === "STD"
+                  ? "Volume"
+                  : "Percent Volume",
               },
               labels: {
                 formatter: (value) => numFormatter(value),
               },
+              opposite: true,
+              tickAmount: 10
             },
           ],
       tooltip: {
@@ -133,11 +133,16 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
   };
 
   function numFormatter(num) {
-    if (num > 999 && num < 1000000) {
-      return (num / 1000).toFixed(1) + "K"; // convert to K for number from > 1000 < 1 million
-    } else if (num > 1000000) {
-      return (num / 1000000).toFixed(1) + "M"; // convert to M for number from > 1 million
-    } else if (num < 900) {
+    // if (num > 999 && num < 1000000) {
+    //   return (num / 1000).toFixed(2) + "K"; // convert to K for number from > 1000 < 1 million
+    // } 
+    if (num > 999) {
+      return (num / 1000).toFixed(0) + "K"; // convert to K for number from > 1000 < 1 million
+    } 
+    // else if (num > 1000000) {
+    //   return (num / 1000000).toFixed(2) + "M"; // convert to M for number from > 1 million
+    // } 
+    else if (num < 900) {
       return num; // if value < 1000, nothing to do
     }
   }
@@ -156,7 +161,7 @@ const AreaChart = ({ data, chartType, multiAxis, exchange }) => {
       series={state.series}
       type="area"
       width="100%"
-      height={680}
+      height={isMobile ? 350 : 680}
     />
   );
 };

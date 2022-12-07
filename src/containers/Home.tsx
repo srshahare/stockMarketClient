@@ -45,8 +45,8 @@ const items: MenuItem[] = [
 ];
 const items1: MenuItem[] = [
     getItem('Chart Type', 'sub2', <RetweetOutlined />, [
-        getItem('Standard', 'STD'),
-        getItem('Percent Volumes', 'PER'),
+        getItem('Standard Volume', 'STD'),
+        getItem('Percent Volume', 'PER'),
     ]),
 ];
 
@@ -55,6 +55,7 @@ const Home = () => {
     const dispatch = useDispatch()
     const [collapsed, setCollapsed] = useState(false);
     const { initSocket } = bindActionCreators(dataActions, dispatch)
+    
     const [exchange, setExchange] = useState("NIFTY")
     const [chartType, setChartType] = useState("STD")
     const [interval, setInterval] = useState("60")
@@ -63,7 +64,7 @@ const Home = () => {
     const [requestType, setRequestType] = useState("GetMinuteData")
 
     const chartData = useSelector((state: any) => state.data);
-    const { tickData, tickDataBank, minuteData, minuteDataBank, callDone, client, loading } = chartData
+    const { tickData, tickDataBank, minuteData, minuteDataBank, client, loading } = chartData
 
     const onClick: MenuProps['onClick'] = e => {
         const key = e.key;
@@ -75,16 +76,13 @@ const Home = () => {
                 duration: duration,
                 subscribe: true,
             }
-            client.send(JSON.stringify(data));
+            if(client) {
+                client.send(JSON.stringify(data));
+            }
         } else {
             setChartType(key)
         }
     }
-    useEffect(() => {
-        if (!callDone) {
-            initSocket()
-        }
-    }, [callDone]);
 
     const handleDuration = (e: any) => {
         setDuration(e);
@@ -94,15 +92,17 @@ const Home = () => {
             duration: e,
             subscribe: true,
         }
-        client.send(JSON.stringify(data));
+        if(client) {
+            client.send(JSON.stringify(data));
+        }
     }
     const handleInterval = (e: any) => {
         setInterval(e);
         let request;
-        if(e === "30") {
+        if (e === "30") {
             request = "GetTickData"
             setRequestType("GetTickData")
-        }else {
+        } else {
             request = "GetMinuteData"
             setRequestType("GetMinuteData")
         }
@@ -112,20 +112,15 @@ const Home = () => {
             duration: duration,
             subscribe: true,
         }
-        client.send(JSON.stringify(data));
+        if(client) {
+            client.send(JSON.stringify(data));
+        }
     }
 
     const handleRefresh = () => {
-        if(client === null) {
+        if (client === null) {
             initSocket();
         }
-        // const data = {
-        //     requestType: requestType,
-        //     exchange: exchange,
-        //     duration: duration,
-        //     subscribe: true,
-        // }
-        // client.send(JSON.stringify(data));
     }
 
     return (
@@ -136,8 +131,8 @@ const Home = () => {
                         {/* <TestChart /> */}
                         {/* <AdvancedRealTimeChart height={600} theme="light" autosize></AdvancedRealTimeChart> */}
                         {interval === "60" ?
-                            <AreaChart data={exchange === "NIFTY" ? minuteData : minuteDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} /> :
-                            <AreaChart data={exchange === "NIFTY" ? tickData : tickDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} />
+                            <AreaChart data={exchange === "NIFTY" ? minuteData : minuteDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={false} /> :
+                            <AreaChart data={exchange === "NIFTY" ? tickData : tickDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={false} />
                         }
                         {/* <RenderChart/> */}
                     </div>
@@ -155,8 +150,8 @@ const Home = () => {
                     <Menu.SubMenu key="Filter" title="Filter" icon={<FilterOutlined />} >
                         <div className="layout-filter-container">
                             <div className="flex mb2">
-                                <h4 style={{margin: 0, marginRight: "8px"}} >Multi Axis Chart</h4>
-                                <Switch onChange={e => setMultiAxis(e)} title="Multi Axis Chart" />
+                                <h4 style={{ margin: 0, marginRight: "8px" }} >Multi Axis Chart</h4>
+                                <Switch checked={isMultiAxis} onChange={e => setMultiAxis(e)} title="Multi Axis Chart" />
                             </div>
                             <div className="mb2">
                                 <h4 className="mb2">Interval</h4>
@@ -207,7 +202,7 @@ const Home = () => {
                     </Menu.SubMenu>
                     <Menu.SubMenu title="Action" key="Action" icon={<ClockCircleOutlined />} >
                         <div className="layout-filter-container mb2 center">
-                            <h3 className="mb2">INDEX: {exchange === "NIFTY" ? "NIFTY 50": "NIFTY BANK"}</h3>
+                            <h3 className="mb2">INDEX: {exchange === "NIFTY" ? "NIFTY 50" : "NIFTY BANK"}</h3>
                             <Button onClick={handleRefresh} disabled={client !== null} loading={loading} type="primary">Refresh Data</Button>
                         </div>
                     </Menu.SubMenu>

@@ -1,6 +1,9 @@
-.App {
-
+.App h3,
+.App h2,
+.App p {
+  margin: 0;
 }
+
 
 /* 
 scrollbar custom */

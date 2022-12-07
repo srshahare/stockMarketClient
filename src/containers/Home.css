@@ -2,6 +2,7 @@
   height: 100vh;
 }
 
+
 .logo {
   height: 32px;
   margin: 16px;
@@ -54,4 +55,58 @@
 
 .ant-layout-sider-children {
   padding-bottom: 32px !important;
+}
+
+.home-mobile-container {
+  padding: 0px;
+}
+
+.home-mobile-context {
+  padding: 0px;
+}
+.home-mobile-infobox {
+  padding: 16px;
+  padding-bottom: 0;
+}
+.home-mobile-infobox .option-box {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.option-box p {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.home-mobile-container .filter-box {
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #eee;
+  margin: 0 16px;
+}
+.home-mobile-container .header-text {
+  margin: 0 16px;
+  margin-bottom: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  color: rgb(88, 88, 88);
+}
+
+.home-mobile-container .flexbox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.filter-box .title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.home-mobile-container .refresh {
+  margin: 16px;
+  padding-bottom: 16px;
 }

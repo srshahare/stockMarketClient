@@ -4,6 +4,7 @@ import './App.css';
 import Home from './containers/Home';
 import Login from './containers/Login';
 import { notification } from 'antd';
+import Layout from './containers/Layout';
 
 const Context = React.createContext({ name: 'Default' });
 
@@ -40,7 +41,7 @@ function App() {
       <Context.Provider value={contextValue} >
         {contextHolder}
         {isAuth ?
-          <Home /> :
+          <Layout /> :
           <Login handleLogin={handleLogin} />
         }
       </Context.Provider>
