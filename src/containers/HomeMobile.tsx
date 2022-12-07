@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import './Home.css'
 import { useDispatch, useSelector } from 'react-redux'
-import { Segmented, Switch, Select, Button, Radio } from 'antd';
+import { Segmented, Switch, Select, Button, Drawer } from 'antd';
 
 import AreaChart from '../components/AreaChart';
 import { bindActionCreators } from 'redux';
 import { dataActions } from '../store/actions';
+import { MenuOutlined } from '@ant-design/icons';
 
 const HomeMobile = ({ isLandscape }: any) => {
     const dispatch = useDispatch()
@@ -20,6 +21,15 @@ const HomeMobile = ({ isLandscape }: any) => {
     const [duration, setDuration] = useState("15");
     const [isMultiAxis, setMultiAxis] = useState(false)
     const [requestType, setRequestType] = useState("GetMinuteData")
+    const [open, setOpen] = useState(false);
+
+    const showDrawer = () => {
+        setOpen(true);
+    };
+
+    const onClose = () => {
+        setOpen(false);
+    };
 
     const handleDuration = (e: any) => {
         setDuration(e);
@@ -83,75 +93,99 @@ const HomeMobile = ({ isLandscape }: any) => {
         }
     }
 
-    return (
-        <div className='home-mobile-container'>
-            <div className='home-mobile-infobox'>
+    const renderMenuBox = (isLandscape: any) => <div>
+        <h3 className='header-text'>Filter</h3>
+        <div className='filter-box'>
+            <div className='flexbox'>
+                <p className='title' style={{ fontSize: isLandscape ? "12px" : "18px" }}>Exchange</p>
+                <Switch onChange={handleExchange} checked={exchange === "NIFTY"} defaultChecked checkedChildren={<div>N</div>} unCheckedChildren={<div>BN</div>} />
+            </div>
+            <div className='flexbox'>
+                <p className='title' style={{ fontSize: isLandscape ? "12px" : "18px" }}>Chart Type</p>
+                <Select style={{ width: 150 }}
+                    onChange={handleChartType} value={chartType} defaultValue="STD" options={[
+                        {
+                            value: "STD",
+                            label: "Standard Volume"
+                        },
+                        {
+                            value: "PER",
+                            label: "Percent Volume"
+                        },
+                    ]} />
+            </div>
+            <div className='flexbox'>
+                <p className='title' style={{ fontSize: isLandscape ? "12px" : "18px" }}>Interval</p>
+                <Select style={{ width: 150 }} value={interval} defaultValue="60"
+                    onChange={handleInterval}
+                    options={[
+                        {
+                            value: "30",
+                            label: "30 Seconds"
+                        },
+                        {
+                            value: "60",
+                            label: "1 Minute"
+                        },
+                    ]} />
+            </div>
+            <div className='flexbox'>
+                <p className='title' style={{ fontSize: isLandscape ? "12px" : "18px" }}>Multi Axis</p>
+                <Switch onChange={e => setMultiAxis(e)} checked={isMultiAxis} />
+            </div>
+        </div>
+        <div className='refresh'>
+            <Button block onClick={handleRefresh} disabled={client !== null} loading={loading} type="primary">Refresh Data</Button>
+        </div>
+    </div>
 
+    return (
+        <div className={`home-mobile-container ${isLandscape ? "full" : ''}`}>
+            <div className={`home-mobile-infobox ${isLandscape ? "bottom" : ""}`}>
                 <div>
-                    <div className='flexbox' style={{ marginBottom: 0 }}>
-                        <h2>Market Data</h2>
-                        <h3>Index: {exchange === "NIFTY" ? "(NIFTY 50)" : "(NIFTY BANK)"}</h3>
-                    </div>
+                    {isLandscape ?
+                        <div className='landscape-duration'>
+
+                        </div> :
+                        <div className='flexbox' style={{ marginBottom: 0 }}>
+                            <h2>Market Data</h2>
+                            <h3>Index: {exchange === "NIFTY" ? "(NIFTY 50)" : "(NIFTY BANK)"}</h3>
+                        </div>
+                    }
                     <div className='option-box'>
-                        <p>Select Duration</p>
-                        <Segmented
-                            value={duration}
-                            onChange={handleDuration}
-                            block
-                            options={["15", "30", "45", "60"]}
-                        />
+                        {isLandscape ?
+                            "" :
+                            <p>Select Duration</p>
+                        }
+                        <div className='flexcenter'>
+                            <Segmented
+                                value={duration}
+                                className="segment"
+                                onChange={handleDuration}
+                                block
+                                options={["15", "30", "45", "60"]}
+                            />
+                            {isLandscape &&
+                                <div onClick={showDrawer} className='menu'><MenuOutlined /></div>
+                            }
+                        </div>
                     </div>
                 </div>
 
             </div>
             <div className='home-mobile-context'>
                 {interval === "60" ?
-                    <AreaChart data={exchange === "NIFTY" ? minuteData : minuteDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} /> :
-                    <AreaChart data={exchange === "NIFTY" ? tickData : tickDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} />
+                    <AreaChart data={exchange === "NIFTY" ? minuteData : minuteDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} isLandscape={isLandscape} /> :
+                    <AreaChart data={exchange === "NIFTY" ? tickData : tickDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} isLandscape={isLandscape} />
                 }
             </div>
-            <h3 className='header-text'>Filter</h3>
-            <div className='filter-box'>
-                <div className='flexbox'>
-                    <p className='title'>Exchange</p>
-                    <Switch onChange={handleExchange} checked={exchange === "NIFTY"} defaultChecked checkedChildren={<div>N</div>} unCheckedChildren={<div>BN</div>} />
-                </div>
-                <div className='flexbox'>
-                    <p className='title'>Chart Type</p>
-                    <Select style={{ width: 150 }}
-                        onChange={handleChartType} value={chartType} defaultValue="STD" options={[
-                            {
-                                value: "STD",
-                                label: "Standard Volume"
-                            },
-                            {
-                                value: "PER",
-                                label: "Percent Volume"
-                            },
-                        ]} />
-                </div>
-                <div className='flexbox'>
-                    <p className='title'>Interval</p>
-                    <Select style={{ width: 150 }} value={interval} defaultValue="60"
-                        onChange={handleInterval}
-                        options={[
-                            {
-                                value: "30",
-                                label: "30 Seconds"
-                            },
-                            {
-                                value: "60",
-                                label: "1 Minute"
-                            },
-                        ]} />
-                </div>
-                <div className='flexbox'>
-                    <p className='title'>Multi Axis</p>
-                    <Switch onChange={e => setMultiAxis(e)} checked={isMultiAxis} />
-                </div>
-            </div>
-            <div className='refresh'>
-                <Button block onClick={handleRefresh} disabled={client !== null} loading={loading} type="primary">Refresh Data</Button>            </div>
+            {isLandscape ?
+                <Drawer title="Market Data" placement="right" width={275} onClose={onClose} open={open}>
+                    {renderMenuBox(true)}
+                </Drawer>
+                :
+                renderMenuBox(false)
+            }
         </div>
     )
 }

@@ -131,8 +131,8 @@ const Home = () => {
                         {/* <TestChart /> */}
                         {/* <AdvancedRealTimeChart height={600} theme="light" autosize></AdvancedRealTimeChart> */}
                         {interval === "60" ?
-                            <AreaChart data={exchange === "NIFTY" ? minuteData : minuteDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={false} /> :
-                            <AreaChart data={exchange === "NIFTY" ? tickData : tickDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={false} />
+                            <AreaChart data={exchange === "NIFTY" ? minuteData : minuteDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={false} isLandscape={false} /> :
+                            <AreaChart data={exchange === "NIFTY" ? tickData : tickDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={false} isLandscape={false} />
                         }
                         {/* <RenderChart/> */}
                     </div>

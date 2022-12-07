@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import Chart from "react-apexcharts";
 import ApexCharts from "apexcharts";
 
-const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile }) => {
+const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile, isLandscape }) => {
   const { CE, PE, CEPercent, PEPercent, tradeTime } = data;
   const state = {
     series: [
@@ -161,7 +161,8 @@ const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile }) => {
       series={state.series}
       type="area"
       width="100%"
-      height={isMobile ? 350 : 680}
+      style={{paddingTop: isLandscape ? '2rem': ''}}
+      height={isMobile ? isLandscape ? window.screen.height-50 : 350 : 680}
     />
   );
 };
