@@ -9,7 +9,7 @@ import Layout from './containers/Layout';
 const Context = React.createContext({ name: 'Default' });
 
 function App() {
-  const [api, contextHolder] = notification.useNotification();
+  const [api] = notification.useNotification();
 
   const openNotification = (placement: NotificationPlacement) => {
     api.error({
@@ -18,8 +18,6 @@ function App() {
       placement,
     });
   };
-
-  const contextValue = useMemo(() => ({ name: 'Ant Design' }), []);
 
 
   const [isAuth, setAuth] = useState(true)
@@ -35,16 +33,15 @@ function App() {
     }
     setAuth(true)
   }
-
   return (
     <div className="App">
-      <Context.Provider value={contextValue} >
-        {contextHolder}
         {isAuth ?
           <Layout /> :
           <Login handleLogin={handleLogin} />
         }
-      </Context.Provider>
+      {/* <Context.Provider value={contextValue} >
+        {contextHolder}
+      </Context.Provider> */}
     </div>
   );
 }

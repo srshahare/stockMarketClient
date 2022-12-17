@@ -57,6 +57,7 @@ const dataReducer = (state = chartState, action) => {
       return {
         ...state,
         client: null,
+        callDone: false,
         error: "Connection Closed! Please Click On Refresh Button!"
       };
     case ActionTypes.FETCH_DATA_INIT:

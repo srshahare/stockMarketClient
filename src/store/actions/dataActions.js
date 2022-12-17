@@ -1,7 +1,7 @@
 import { ActionTypes } from "../constants/actionTypes";
 var W3CWebSocket = require("websocket").w3cwebsocket;
 
-export const initSocket = () => {
+export const initSocket = (currentData) => {
   return async (dispatch) => {
     try {
       dispatch({
@@ -19,14 +19,10 @@ export const initSocket = () => {
           payload: client,
         });
         setTimeout(() => {
-          const data = {
-            requestType: "GetMinuteData",
-            exchange: "NIFTY",
-            duration: "15",
-            subscribe: true,
-          };
+          console.log(currentData)
+          const data = currentData;
           client.send(JSON.stringify(data));
-        }, 2000);
+        }, 500);
       };
 
       client.onmessage = (message) => {

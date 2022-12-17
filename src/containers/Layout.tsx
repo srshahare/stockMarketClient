@@ -10,10 +10,16 @@ const Layout = () => {
     const { initSocket } = bindActionCreators(dataActions, dispatch)
 
     const chartData = useSelector((state: any) => state.data);
-    const { callDone } = chartData
+    const { callDone, client } = chartData
 
     const [isMobileView, setMobileView] = useState(false)
     const [isLandscape, setLandscape] = useState(false);
+    const [currentData, setCurrentData] = useState({
+        requestType: "GetMinuteData",
+        exchange: "NIFTY",
+        duration: "15",
+        subscribe: true,
+    })
 
 
     useEffect(() => {
@@ -51,11 +57,13 @@ const Layout = () => {
                 console.log("Desktop View!")
             }
         }, false)
+
+
     }, [])
 
     useEffect(() => {
         if (!callDone) {
-            initSocket()
+            initSocket(currentData)
         }
     }, [callDone]);
 
@@ -63,8 +71,8 @@ const Layout = () => {
     return (
         <div>
             {isMobileView ?
-                <HomeMobile isLandscape={isLandscape} /> :
-                <Home />
+                <HomeMobile setCurrentData={setCurrentData} currentData={currentData} isLandscape={isLandscape} /> :
+                <Home setCurrentData={setCurrentData} currentData={currentData} />
             }
         </div>
     )

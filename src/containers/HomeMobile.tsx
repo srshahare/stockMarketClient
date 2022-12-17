@@ -8,7 +8,7 @@ import { bindActionCreators } from 'redux';
 import { dataActions } from '../store/actions';
 import { MenuOutlined } from '@ant-design/icons';
 
-const HomeMobile = ({ isLandscape }: any) => {
+const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
     const dispatch = useDispatch()
     const { initSocket } = bindActionCreators(dataActions, dispatch)
 
@@ -40,10 +40,12 @@ const HomeMobile = ({ isLandscape }: any) => {
             duration: e,
             subscribe: true,
         }
+        setCurrentData(data)
         if (client) {
             client.send(JSON.stringify(data));
         }
     }
+
     const handleChartType = (e: any) => {
         setChartType(e);
     }
@@ -61,6 +63,7 @@ const HomeMobile = ({ isLandscape }: any) => {
             duration: duration,
             subscribe: true,
         }
+        setCurrentData(data)
         if (client) {
             client.send(JSON.stringify(data));
         }
@@ -82,6 +85,7 @@ const HomeMobile = ({ isLandscape }: any) => {
             duration: duration,
             subscribe: true,
         }
+        setCurrentData(data)
         if (client) {
             client.send(JSON.stringify(data));
         }
@@ -89,7 +93,7 @@ const HomeMobile = ({ isLandscape }: any) => {
 
     const handleRefresh = () => {
         if (client === null) {
-            initSocket();
+            initSocket(currentData);
         }
     }
 
