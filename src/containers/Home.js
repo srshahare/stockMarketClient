@@ -56,6 +56,8 @@ const Home = ({ currentData, setCurrentData }) => {
     minuteDataBank,
     client,
     loading,
+    currentMinTime,
+    currentTickTime
   } = chartData;
 
   const onClick = (e) => {
@@ -262,7 +264,7 @@ const Home = ({ currentData, setCurrentData }) => {
           </Menu.SubMenu>
         </Menu>
 
-        <h3 className="time"> {collapsed ? "" : "Current Time: "} 12:33 PM</h3>
+        <h3 className="time"> {collapsed ? "" : "Current Time: "} {interval === "60" ? currentMinTime: currentTickTime}</h3>
       </Sider>
     </Layout>
   );

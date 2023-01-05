@@ -64,7 +64,21 @@ const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile, isLandscape
         enabled: false,
       },
       markers: {
+        // size: [2,2],
+        // colors: undefined,
+        // strokeWidth: 1,
+        // strokeOpacity: 0.9,
+        // strokeDashArray: 0,
+        // fillOpacity: 1,
+        // discrete: [],
+        // shape: "circle",
+        // radius: 10,
+        // showNullDataPoints: true,
         size: 0,
+        hover: {
+          size: undefined,
+          sizeOffset: 5
+        },
         style: "hollow",
       },
       grid: {

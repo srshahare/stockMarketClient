@@ -96,14 +96,27 @@
 }
 
 .flexcenter .segment {
-  width: 93%;
+  width: 60%;
 }
+
+.time-mobile-landscape {
+  background-color: #eee;
+  border-radius: 8rem;
+  width: 195px;
+  text-align: center;
+  padding: 8px 1rem;
+  color: #000;
+  margin-bottom: 0;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+}
+
 .flexcenter .menu {
   /* width: 10%; */
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 4px;
+  background-color: #eee;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
   border-radius: 8rem;
   width: 40px;
@@ -120,6 +133,7 @@
 }
 .home-mobile-container .header-text {
   margin: 0 16px;
+  margin-top: 1rem;
   margin-bottom: 8px;
   font-size: 18px;
   font-weight: 500;
@@ -146,4 +160,10 @@
 
 .home-mobile-container .landscape-duration {
   padding-bottom: -64px;
+}
+
+.time-mobile {
+  background-color: #eee;
+  padding: 4px 1rem;
+  color: #000;
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './Home.css'
 import { useDispatch, useSelector } from 'react-redux'
 import { Segmented, Switch, Select, Button, Drawer } from 'antd';
@@ -13,12 +13,12 @@ const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
     const { initSocket } = bindActionCreators(dataActions, dispatch)
 
     const chartData = useSelector((state: any) => state.data);
-    const { tickData, tickDataBank, minuteData, minuteDataBank, client, loading } = chartData
+    const { tickData, tickDataBank, minuteData, minuteDataBank, client, loading, currentMinTime, currentTickTime, callDone } = chartData
 
     const [exchange, setExchange] = useState("NIFTY")
-    const [chartType, setChartType] = useState("STD")
+    const [chartType, setChartType] = useState("PER")
     const [interval, setInterval] = useState("60")
-    const [duration, setDuration] = useState("15");
+    const [duration, setDuration] = useState("45");
     const [isMultiAxis, setMultiAxis] = useState(false)
     const [requestType, setRequestType] = useState("GetMinuteData")
     const [open, setOpen] = useState(false);
@@ -93,9 +93,17 @@ const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
 
     const handleRefresh = () => {
         if (client === null) {
-            initSocket(currentData);
+            initSocket(currentData)
         }
     }
+
+    useEffect(() => {
+
+        initSocket({
+            ...currentData,
+            duration: "45"
+        });
+    }, [callDone])
 
     const renderMenuBox = (isLandscape: any) => <div>
         <h3 className='header-text'>Filter</h3>
@@ -161,18 +169,29 @@ const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
                             "" :
                             <p>Select Duration</p>
                         }
-                        <div className='flexcenter'>
-                            <Segmented
-                                value={duration}
-                                className="segment"
-                                onChange={handleDuration}
-                                block
-                                options={["15", "30", "45", "60"]}
-                            />
-                            {isLandscape &&
+                        {isLandscape ?
+                            <div className='flexcenter'>
+                                <h5 className="time-mobile-landscape">Current Time : {interval === "60" ? currentMinTime : currentTickTime}</h5>
+                                <Segmented
+                                    value={duration}
+                                    className="segment"
+                                    onChange={handleDuration}
+                                    block
+                                    options={["15", "30", "45", "60"]}
+                                />
                                 <div onClick={showDrawer} className='menu'><MenuOutlined /></div>
-                            }
-                        </div>
+
+                            </div> :
+                            <div>
+                                <Segmented
+                                    value={duration}
+                                    className="segment"
+                                    onChange={handleDuration}
+                                    block
+                                    options={["15", "30", "45", "60"]}
+                                />
+                            </div>
+                        }
                     </div>
                 </div>
 
@@ -183,6 +202,10 @@ const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
                     <AreaChart data={exchange === "NIFTY" ? tickData : tickDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} isLandscape={isLandscape} />
                 }
             </div>
+            {
+                !isLandscape &&
+                <h3 className="time-mobile">Current Time : {interval === "60" ? currentMinTime : currentTickTime}</h3>
+            }
             {isLandscape ?
                 <Drawer title="Market Data" placement="right" width={275} onClose={onClose} open={open}>
                     {renderMenuBox(true)}

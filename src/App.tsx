@@ -11,16 +11,16 @@ const Context = React.createContext({ name: 'Default' });
 function App() {
   const [api] = notification.useNotification();
 
-  const openNotification = (placement: NotificationPlacement) => {
-    api.error({
-      message: `Wrong Credentials!`,
-      description: <Context.Consumer>{({ name }) => `Username or Password is incorrect!`}</Context.Consumer>,
-      placement,
+  const openNotification = () => {
+    notification.error({
+      message: 'Wrong Credentials!',
+      description:
+        'Username or Password is incorrect!',
     });
   };
 
 
-  const [isAuth, setAuth] = useState(true)
+  const [isAuth, setAuth] = useState(false)
 
   const reqEmail = "saidulushaik24@gmail.com"
   const reqPass = "Sushma@123"
@@ -29,19 +29,17 @@ function App() {
     const { username, password } = values;
     if (username !== reqEmail || password !== reqPass) {
       console.log("wrong username or password")
-      return openNotification('topRight')
+      return openNotification()
     }
     setAuth(true)
   }
+  
   return (
     <div className="App">
         {isAuth ?
           <Layout /> :
           <Login handleLogin={handleLogin} />
         }
-      {/* <Context.Provider value={contextValue} >
-        {contextHolder}
-      </Context.Provider> */}
     </div>
   );
 }
