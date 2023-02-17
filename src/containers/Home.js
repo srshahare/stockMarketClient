@@ -46,6 +46,7 @@ const Home = ({ currentData, setCurrentData }) => {
   const [interval, setInterval] = useState("60");
   const [duration, setDuration] = useState("15");
   const [isMultiAxis, setMultiAxis] = useState(false);
+  const [isSingleLine, setSingleLine] = useState(false)
   const [requestType, setRequestType] = useState("GetMinuteData");
 
   const chartData = useSelector((state) => state.data);
@@ -57,7 +58,7 @@ const Home = ({ currentData, setCurrentData }) => {
     client,
     loading,
     currentMinTime,
-    currentTickTime
+    currentTickTime,
   } = chartData;
 
   const onClick = (e) => {
@@ -70,7 +71,7 @@ const Home = ({ currentData, setCurrentData }) => {
         duration: duration,
         subscribe: true,
       };
-      setCurrentData(data)
+      setCurrentData(data);
       if (client) {
         client.send(JSON.stringify(data));
       }
@@ -87,7 +88,7 @@ const Home = ({ currentData, setCurrentData }) => {
       duration: e,
       subscribe: true,
     };
-    setCurrentData(data)
+    setCurrentData(data);
     if (client) {
       client.send(JSON.stringify(data));
     }
@@ -108,7 +109,7 @@ const Home = ({ currentData, setCurrentData }) => {
       duration: duration,
       subscribe: true,
     };
-    setCurrentData(data)
+    setCurrentData(data);
     if (client) {
       client.send(JSON.stringify(data));
     }
@@ -135,6 +136,7 @@ const Home = ({ currentData, setCurrentData }) => {
                 data={exchange === "NIFTY" ? minuteData : minuteDataBank}
                 chartType={chartType}
                 multiAxis={isMultiAxis}
+                singleLine={isSingleLine}
                 exchange={exchange}
                 isMobile={false}
                 isLandscape={false}
@@ -145,6 +147,7 @@ const Home = ({ currentData, setCurrentData }) => {
                 chartType={chartType}
                 multiAxis={isMultiAxis}
                 exchange={exchange}
+                singleLine={isSingleLine}
                 isMobile={false}
                 isLandscape={false}
               />
@@ -193,7 +196,18 @@ const Home = ({ currentData, setCurrentData }) => {
                 <Switch
                   checked={isMultiAxis}
                   onChange={(e) => setMultiAxis(e)}
+                  disabled={isSingleLine}
                   title="Multi Axis Chart"
+                />
+              </div>
+              <div className="flex mb2">
+                <h4 style={{ margin: 0, marginRight: "8px" }}>
+                  Single Line Chart
+                </h4>
+                <Switch
+                  checked={isSingleLine}
+                  onChange={(e) => setSingleLine(e)}
+                  title="Single Line Chart"
                 />
               </div>
               <div className="mb2">
@@ -264,7 +278,11 @@ const Home = ({ currentData, setCurrentData }) => {
           </Menu.SubMenu>
         </Menu>
 
-        <h3 className="time"> {collapsed ? "" : "Current Time: "} {interval === "60" ? currentMinTime: currentTickTime}</h3>
+        <h3 className="time">
+          {" "}
+          {collapsed ? "" : "Current Time: "}{" "}
+          {interval === "60" ? currentMinTime : currentTickTime}
+        </h3>
       </Sider>
     </Layout>
   );

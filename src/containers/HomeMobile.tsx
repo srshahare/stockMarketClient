@@ -20,6 +20,7 @@ const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
     const [interval, setInterval] = useState("60")
     const [duration, setDuration] = useState("45");
     const [isMultiAxis, setMultiAxis] = useState(false)
+    const [isSingleLine, setSingleLine] = useState(false)
     const [requestType, setRequestType] = useState("GetMinuteData")
     const [open, setOpen] = useState(false);
 
@@ -143,7 +144,11 @@ const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
             </div>
             <div className='flexbox'>
                 <p className='title' style={{ fontSize: isLandscape ? "12px" : "18px" }}>Multi Axis</p>
-                <Switch onChange={e => setMultiAxis(e)} checked={isMultiAxis} />
+                <Switch onChange={e => setMultiAxis(e)} checked={isMultiAxis} disabled={isSingleLine} />
+            </div>
+            <div className='flexbox'>
+                <p className='title' style={{ fontSize: isLandscape ? "12px" : "18px" }}>Single Line Chart</p>
+                <Switch onChange={e => setSingleLine(e)} checked={isSingleLine} />
             </div>
         </div>
         <div className='refresh'>
@@ -198,8 +203,8 @@ const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
             </div>
             <div className='home-mobile-context'>
                 {interval === "60" ?
-                    <AreaChart data={exchange === "NIFTY" ? minuteData : minuteDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} isLandscape={isLandscape} /> :
-                    <AreaChart data={exchange === "NIFTY" ? tickData : tickDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} isLandscape={isLandscape} />
+                    <AreaChart data={exchange === "NIFTY" ? minuteData : minuteDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} isLandscape={isLandscape} singleLine={isSingleLine} /> :
+                    <AreaChart data={exchange === "NIFTY" ? tickData : tickDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} isLandscape={isLandscape} singleLine={isSingleLine} />
                 }
             </div>
             {

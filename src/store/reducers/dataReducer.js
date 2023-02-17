@@ -8,6 +8,8 @@ const chartState = {
     CEPercent: [],
     PE: [],
     PEPercent: [],
+    Diff: [],
+    DiffPercent: [],
     tradeTime: [],
   },
   minuteDataBank: {
@@ -16,6 +18,8 @@ const chartState = {
     CEPercent: [],
     PE: [],
     PEPercent: [],
+    Diff: [],
+    DiffPercent: [],
     tradeTime: [],
   },
   tickData: {
@@ -77,6 +81,8 @@ const dataReducer = (state = chartState, action) => {
           let callDataPer = [];
           let putDataPer = [];
           let tradeTime = [];
+          let diffData = []
+          let diffDataPer = []
           const filteredData = data.filter((t) => t.tradeTime <= endTime);
           const sortedData = filteredData.sort((a, b) => parseInt(a.tradeTime) - parseInt(b.tradeTime))
           let timestamp;
@@ -87,6 +93,8 @@ const dataReducer = (state = chartState, action) => {
             putData.push([timestamp, PE.Volume]);
             callDataPer.push([timestamp, CE.PercentVolume]);
             putDataPer.push([timestamp, PE.PercentVolume]);
+            diffData.push([timestamp, parseFloat(CE.Volume - PE.Volume)])
+            diffDataPer.push([timestamp, parseFloat(CE.PercentVolume - PE.PercentVolume)])
             tradeTime.push(item.tradeTime);
           });
           const minTime = moment(timestamp).format("hh:mm:ss A")
@@ -98,6 +106,8 @@ const dataReducer = (state = chartState, action) => {
               PE: putData,
               CEPercent: callDataPer,
               PEPercent: putDataPer,
+              DiffPercent: diffDataPer,
+              Diff: diffData,
               tradeTime: tradeTime,
               loading: false,
             },
@@ -118,11 +128,21 @@ const dataReducer = (state = chartState, action) => {
               ...state.minuteData.PEPercent,
               [timestamp, PE.PercentVolume],
             ];
+            const diffData = [
+              ...state.minuteData.Diff,
+              [timestamp, parseFloat(CE.Volume - PE.Volume)]
+            ]
+            const diffDataPer = [
+              ...state.minuteData.DiffPercent,
+              [timestamp, parseFloat(CE.PercentVolume - PE.PercentVolume)]
+            ]
             const minTime = moment(timestamp).format("hh:mm:ss A")
             const sortedCallData = callData.sort((a, b) => a[0] - b[0])
             const sortedPutData = pullData.sort((a, b) => a[0] - b[0])
             const sortedCallDataPer = callDataPer.sort((a, b) => a[0] - b[0])
             const sortedPutDataPer = putDataPer.sort((a, b) => a[0] - b[0])
+            const sortedDiffData = diffData.sort((a, b) => a[0] - b[0])
+            const sortedDiffDataPer = diffDataPer.sort((a, b) => a[0] - b[0])
             return {
               ...state,
               minuteData: {
@@ -131,6 +151,8 @@ const dataReducer = (state = chartState, action) => {
                 PE: sortedPutData,
                 CEPercent: sortedCallDataPer,
                 PEPercent: sortedPutDataPer,
+                Diff: sortedDiffData,
+                DiffPercent: sortedDiffDataPer,
                 tradeTime: [...state.minuteData.tradeTime, timestamp],
                 loading: false,
               },
@@ -153,6 +175,8 @@ const dataReducer = (state = chartState, action) => {
           let putData = [];
           let callDataPer = [];
           let putDataPer = [];
+          let diffData = []
+          let diffDataPer = []
           let tradeTime = [];
           const filteredData = bankData.filter((t) => t.tradeTime <= endTime);
           const sortedData = filteredData.sort((a, b) => parseInt(a.tradeTime) - parseInt(b.tradeTime))
@@ -164,6 +188,8 @@ const dataReducer = (state = chartState, action) => {
             putData.push([timestamp, PE.Volume]);
             callDataPer.push([timestamp, CE.PercentVolume]);
             putDataPer.push([timestamp, PE.PercentVolume]);
+            diffData.push([timestamp, parseFloat(CE.Volume - PE.Volume)])
+            diffDataPer.push([timestamp, parseFloat(CE.PercentVolume - PE.PercentVolume)])
             tradeTime.push(item.tradeTime);
           });
           const minTime = moment(timestamp).format("hh:mm:ss A")
@@ -175,6 +201,8 @@ const dataReducer = (state = chartState, action) => {
               PE: putData,
               CEPercent: callDataPer,
               PEPercent: putDataPer,
+              DiffPercent: diffDataPer,
+              Diff: diffData,
               tradeTime: tradeTime,
               loading: false,
             },
@@ -201,11 +229,21 @@ const dataReducer = (state = chartState, action) => {
               ...state.minuteDataBank.PEPercent,
               [timestamp, PE.PercentVolume],
             ];
+            const diffData = [
+              ...state.minuteDataBank.Diff,
+              [timestamp, parseFloat(CE.Volume - PE.Volume)]
+            ]
+            const diffDataPer = [
+              ...state.minuteDataBank.DiffPercent,
+              [timestamp, parseFloat(CE.PercentVolume - PE.PercentVolume)]
+            ]
             const minTime = moment(timestamp).format("hh:mm:ss A")
             const sortedCallData = callData.sort((a, b) => a[0] - b[0])
             const sortedPutData = pullData.sort((a, b) => a[0] - b[0])
             const sortedCallDataPer = callDataPer.sort((a, b) => a[0] - b[0])
             const sortedPutDataPer = putDataPer.sort((a, b) => a[0] - b[0])
+            const sortedDiffData = diffData.sort((a, b) => a[0] - b[0])
+            const sortedDiffDataPer = diffDataPer.sort((a, b) => a[0] - b[0])
             return {
               ...state,
               minuteDataBank: {
@@ -214,6 +252,8 @@ const dataReducer = (state = chartState, action) => {
                 PE: sortedPutData,
                 CEPercent: sortedCallDataPer,
                 PEPercent: sortedPutDataPer,
+                Diff: sortedDiffData,
+                DiffPercent: sortedDiffDataPer,
                 tradeTime: [...state.minuteDataBank.tradeTime, timestamp],
                 loading: false,
               },

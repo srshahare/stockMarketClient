@@ -2,19 +2,35 @@ import React, { useEffect } from "react";
 import Chart from "react-apexcharts";
 import ApexCharts from "apexcharts";
 
-const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile, isLandscape }) => {
-  const { CE, PE, CEPercent, PEPercent, tradeTime } = data;
+const AreaChart = ({
+  data,
+  chartType,
+  multiAxis,
+  exchange,
+  isMobile,
+  isLandscape,
+  singleLine,
+}) => {
+  const { CE, PE, CEPercent, PEPercent, Diff, DiffPercent, tradeTime } = data;
+  // console.log(Diff)
   const state = {
-    series: [
-      {
-        name: "CE",
-        data: chartType === "STD" ? CE : CEPercent,
-      },
-      {
-        name: "PE",
-        data: chartType === "STD" ? PE : PEPercent,
-      },
-    ],
+    series: singleLine
+      ? [
+          {
+            name: "CE-PE",
+            data: chartType === "STD" ? Diff : DiffPercent,
+          },
+        ]
+      : [
+          {
+            name: "CE",
+            data: chartType === "STD" ? CE : CEPercent,
+          },
+          {
+            name: "PE",
+            data: chartType === "STD" ? PE : PEPercent,
+          },
+        ],
     options: {
       chart: {
         toolbar: {
@@ -51,7 +67,7 @@ const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile, isLandscape
           fontFamily: "Helvetica",
         },
       },
-      colors: ["#00c853", "#d50000"],
+      colors: singleLine ? ["#146dcc"] : ["#00c853", "#d50000"],
       stroke: {
         curve: "smooth",
         width: 1.5,
@@ -77,7 +93,7 @@ const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile, isLandscape
         size: 0,
         hover: {
           size: undefined,
-          sizeOffset: 5
+          sizeOffset: 5,
         },
         style: "hollow",
       },
@@ -90,7 +106,7 @@ const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile, isLandscape
         labels: {
           datetimeUTC: false,
           format: "hh:mm",
-          offsetX: 0
+          offsetX: 0,
         },
         type: "datetime",
         // tickAmount: 356,
@@ -104,7 +120,7 @@ const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile, isLandscape
               labels: {
                 formatter: (value) => numFormatter(value),
               },
-              tickAmount: 10
+              tickAmount: 10,
             },
             {
               opposite: true,
@@ -114,7 +130,7 @@ const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile, isLandscape
               labels: {
                 formatter: (value) => numFormatter(value),
               },
-              tickAmount: 10
+              tickAmount: 10,
             },
           ]
         : [
@@ -130,7 +146,7 @@ const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile, isLandscape
                 formatter: (value) => numFormatter(value),
               },
               opposite: true,
-              tickAmount: 10
+              tickAmount: 10,
             },
           ],
       tooltip: {
@@ -149,14 +165,14 @@ const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile, isLandscape
   function numFormatter(num) {
     // if (num > 999 && num < 1000000) {
     //   return (num / 1000).toFixed(2) + "K"; // convert to K for number from > 1000 < 1 million
-    // } 
-    if (num > 999) {
+    // }
+    if (Math.abs(num) > 999) {
       return (num / 1000).toFixed(0) + "K"; // convert to K for number from > 1000 < 1 million
-    } 
+    }
     // else if (num > 1000000) {
     //   return (num / 1000000).toFixed(2) + "M"; // convert to M for number from > 1 million
-    // } 
-    else if (num < 900) {
+    // }
+    else if (Math.abs(num) < 900) {
       return num; // if value < 1000, nothing to do
     }
   }
@@ -175,8 +191,8 @@ const AreaChart = ({ data, chartType, multiAxis, exchange, isMobile, isLandscape
       series={state.series}
       type="area"
       width="100%"
-      style={{paddingTop: isLandscape ? '2rem': ''}}
-      height={isMobile ? isLandscape ? window.screen.height-50 : 350 : 680}
+      style={{ paddingTop: isLandscape ? "2rem" : "" }}
+      height={isMobile ? (isLandscape ? window.screen.height - 50 : 350) : 680}
     />
   );
 };
