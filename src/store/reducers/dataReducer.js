@@ -12,6 +12,14 @@ const chartState = {
     DiffPercent: [],
     tradeTime: [],
   },
+  indexMinData: {
+    loading: false,
+    data: [],
+  },
+  indexMinBankData: {
+    loading: false,
+    data: []
+  },
   minuteDataBank: {
     loading: false,
     CE: [],
@@ -66,6 +74,130 @@ const dataReducer = (state = chartState, action) => {
         callDone: false,
         error: "Connection Closed! Please Click On Refresh Button!"
       };
+    case ActionTypes.FETCH_INDEX_INIT:
+      return {
+        ...state,
+        loading: true,
+        callDone: true
+      }  
+    case ActionTypes.FETCH_INDEX_COMPLETE:
+      let iData = action.payload;
+      if(iData) {
+        if(iData.constructor === Array) {
+          let indexData = []
+          const filterData = iData.filter(t => t.tradeTime <= endTime);
+          const sortedData = filterData.sort((a, b) => parseInt(a.tradeTime) - parseInt(b.tradeTime))
+          let timestamp;
+          sortedData.map(item => {
+            const {data} = item;
+            const { Close, High, Low, Open } = data;
+            timestamp = moment.unix(item.tradeTime)
+            indexData.push([timestamp, Open, High, Low, Close])
+          })
+          const minTime = moment(timestamp).format("hh:mm:ss A")
+          return {
+            ...state,
+            indexMinData: {
+              ...state.indexMinData,
+              loading: false,
+              data: indexData
+            },
+            loading: false,
+            currentMinTime: minTime
+          }
+        }else {
+          const {data, tradeTime} = iData;
+          const { Close, High, Low, Open } = data;
+          if(tradeTime <= endTime) {
+            const timestamp = moment.unix(tradeTime)
+            const indexData = [...state.indexMinData.data, [timestamp, Open, High, Low, Close]]
+            const minTime = moment(timestamp).format("hh:mm:ss A")
+            const sortedIndexData = indexData.sort((a, b) => a[0] - b[0])
+            return {
+              ...state,
+              indexMinData: {
+                ...state.indexMinData,
+                loading: false,
+                data: sortedIndexData,
+              },
+              loading: false,
+              currentMinTime: minTime
+            }
+          }
+        }
+      }else {
+        return {
+          ...state,
+          loading: false
+        }  
+      }
+    case ActionTypes.FETCH_INDEX_FAILED:
+      return {
+        ...state,
+        loading: false
+      }  
+    case ActionTypes.FETCH_INDEX_INIT_BANK:
+      return {
+        ...state,
+        loading: true,
+        callDone: true
+      }  
+    case ActionTypes.FETCH_INDEX_COMPLETE_BANK:
+      let bData = action.payload;
+      if(bData) {
+        if(bData.constructor === Array) {
+          let indexData = []
+          const filterData = bData.filter(t => t.tradeTime <= endTime);
+          const sortedData = filterData.sort((a, b) => parseInt(a.tradeTime) - parseInt(b.tradeTime))
+          let timestamp;
+          sortedData.map(item => {
+            const {data} = item;
+            const { Close, High, Low, Open } = data;
+            timestamp = moment.unix(item.tradeTime)
+            indexData.push([timestamp, Open, High, Low, Close])
+          })
+          const minTime = moment(timestamp).format("hh:mm:ss A")
+          return {
+            ...state,
+            indexMinBankData: {
+              ...state.indexMinBankData,
+              loading: false,
+              data: indexData
+            },
+            loading: false,
+            currentMinTime: minTime
+          }
+        }else {
+          const {data, tradeTime} = bData;
+          const { Close, High, Low, Open } = data;
+          if(tradeTime <= endTime) {
+            const timestamp = moment.unix(tradeTime)
+            const indexData = [...state.indexMinBankData.data, [timestamp, Open, High, Low, Close]]
+            const minTime = moment(timestamp).format("hh:mm:ss A")
+            const sortedIndexData = indexData.sort((a, b) => a[0] - b[0])
+            return {
+              ...state,
+              indexMinBankData: {
+                ...state.indexMinBankData,
+                loading: false,
+                data: sortedIndexData,
+              },
+              loading: false,
+              currentMinTime: minTime
+            }
+          }
+        }
+      }else {
+        return {
+          ...state,
+          loading: false
+        }  
+      }
+    case ActionTypes.FETCH_INDEX_FAILED_BANK:
+      return {
+        ...state,
+        loading: false
+      }  
     case ActionTypes.FETCH_DATA_INIT:
       return {
         ...state,

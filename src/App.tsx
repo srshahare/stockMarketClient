@@ -20,7 +20,7 @@ function App() {
   };
 
 
-  const [isAuth, setAuth] = useState(false)
+  const [isAuth, setAuth] = useState(true)
 
   const reqEmail = "saidulushaik24@gmail.com"
   const reqPass = "Sushma@123"

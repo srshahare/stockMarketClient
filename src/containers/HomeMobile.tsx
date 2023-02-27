@@ -7,20 +7,22 @@ import AreaChart from '../components/AreaChart';
 import { bindActionCreators } from 'redux';
 import { dataActions } from '../store/actions';
 import { MenuOutlined } from '@ant-design/icons';
+import CandleStickChart from '../components/CandlStickChart';
+import DualLineChart from '../components/DualLineChart';
 
 const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
     const dispatch = useDispatch()
     const { initSocket } = bindActionCreators(dataActions, dispatch)
 
     const chartData = useSelector((state: any) => state.data);
-    const { tickData, tickDataBank, minuteData, minuteDataBank, client, loading, currentMinTime, currentTickTime, callDone } = chartData
+    const { tickData, tickDataBank, minuteData, minuteDataBank, indexMinData, indexMinBankData, client, loading, currentMinTime, currentTickTime, callDone } = chartData
 
     const [exchange, setExchange] = useState("NIFTY")
     const [chartType, setChartType] = useState("PER")
     const [interval, setInterval] = useState("60")
     const [duration, setDuration] = useState("45");
     const [isMultiAxis, setMultiAxis] = useState(false)
-    const [isSingleLine, setSingleLine] = useState(false)
+    const [isDualLine, setDualLine] = useState(false)
     const [requestType, setRequestType] = useState("GetMinuteData")
     const [open, setOpen] = useState(false);
 
@@ -48,7 +50,32 @@ const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
     }
 
     const handleChartType = (e: any) => {
-        setChartType(e);
+        if (e === "CDL") {
+            setRequestType("GetIndexData");
+            setDualLine(false)
+            setChartType(e);
+            const data = {
+                requestType: "GetIndexData",
+                exchange: exchange,
+                duration: duration,
+                subscribe: true,
+            };
+            if (client) {
+                client.send(JSON.stringify(data));
+            }
+        } else {
+            setChartType(e);
+            setRequestType("GetMinuteData");
+            const data = {
+                requestType: "GetMinuteData",
+                exchange: exchange,
+                duration: duration,
+                subscribe: true,
+            };
+            if (client) {
+                client.send(JSON.stringify(data));
+            }
+        }
     }
 
 
@@ -99,24 +126,54 @@ const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
     }
 
     useEffect(() => {
-
         initSocket({
             ...currentData,
             duration: "45"
         });
     }, [callDone])
 
+    const handleDualLine = (e: any) => {
+        setDualLine(e)
+        if (e) {
+            setRequestType("GetBothData");
+            const data = {
+                requestType: "GetBothData",
+                exchange: "Both",
+                duration: duration,
+                subscribe: true,
+            };
+            if (client) {
+                client.send(JSON.stringify(data));
+            }
+        } else {
+            setRequestType("GetMinuteData")
+            const data = {
+                requestType: "GetMinuteData",
+                exchange: exchange,
+                duration: duration,
+                subscribe: true,
+            };
+            if (client) {
+                client.send(JSON.stringify(data));
+            }
+        }
+    }
+
     const renderMenuBox = (isLandscape: any) => <div>
         <h3 className='header-text'>Filter</h3>
         <div className='filter-box'>
             <div className='flexbox'>
                 <p className='title' style={{ fontSize: isLandscape ? "12px" : "18px" }}>Exchange</p>
-                <Switch onChange={handleExchange} checked={exchange === "NIFTY"} defaultChecked checkedChildren={<div>N</div>} unCheckedChildren={<div>BN</div>} />
+                <Switch disabled={isDualLine} onChange={handleExchange} checked={exchange === "NIFTY"} defaultChecked checkedChildren={<div>N</div>} unCheckedChildren={<div>BN</div>} />
             </div>
             <div className='flexbox'>
                 <p className='title' style={{ fontSize: isLandscape ? "12px" : "18px" }}>Chart Type</p>
-                <Select style={{ width: 150 }}
+                <Select disabled={isDualLine} style={{ width: 150 }}
                     onChange={handleChartType} value={chartType} defaultValue="STD" options={[
+                        {
+                            value: "CDL",
+                            label: "Candle Stick"
+                        },
                         {
                             value: "STD",
                             label: "Standard Volume"
@@ -144,11 +201,11 @@ const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
             </div>
             <div className='flexbox'>
                 <p className='title' style={{ fontSize: isLandscape ? "12px" : "18px" }}>Multi Axis</p>
-                <Switch onChange={e => setMultiAxis(e)} checked={isMultiAxis} disabled={isSingleLine} />
+                <Switch onChange={e => setMultiAxis(e)} checked={isMultiAxis} disabled={chartType === 'CDL'} />
             </div>
             <div className='flexbox'>
-                <p className='title' style={{ fontSize: isLandscape ? "12px" : "18px" }}>Single Line Chart</p>
-                <Switch onChange={e => setSingleLine(e)} checked={isSingleLine} />
+                <p className='title' style={{ fontSize: isLandscape ? "12px" : "18px" }}>Dual Line Chart</p>
+                <Switch onChange={handleDualLine} checked={isDualLine} disabled={chartType === "CDL"} />
             </div>
         </div>
         <div className='refresh'>
@@ -203,8 +260,32 @@ const HomeMobile = ({ isLandscape, currentData, setCurrentData }: any) => {
             </div>
             <div className='home-mobile-context'>
                 {interval === "60" ?
-                    <AreaChart data={exchange === "NIFTY" ? minuteData : minuteDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} isLandscape={isLandscape} singleLine={isSingleLine} /> :
-                    <AreaChart data={exchange === "NIFTY" ? tickData : tickDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} isLandscape={isLandscape} singleLine={isSingleLine} />
+                    <>
+                        {chartType === 'CDL' ?
+                            <CandleStickChart
+                                candleData={
+                                    exchange === "NIFTY" ? indexMinData : indexMinBankData
+                                }
+                                exchange={exchange}
+                                isLandscape={isLandscape}
+                                isMobile={true}
+                            /> :
+                            <>
+                                {isDualLine ?
+                                    <DualLineChart
+                                        data={minuteData}
+                                        bankData={minuteDataBank}
+                                        exchange={exchange}
+                                        isMobile={true}
+                                        isLandscape={isLandscape}
+                                        multiAxis={isMultiAxis}
+                                    /> : <AreaChart data={exchange === "NIFTY" ? minuteData : minuteDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} isLandscape={isLandscape} singleLine={isDualLine} />
+                                }
+                            </>
+                        }
+                    </>
+                    :
+                    <AreaChart data={exchange === "NIFTY" ? tickData : tickDataBank} chartType={chartType} multiAxis={isMultiAxis} exchange={exchange} isMobile={true} isLandscape={isLandscape} singleLine={isDualLine} />
                 }
             </div>
             {

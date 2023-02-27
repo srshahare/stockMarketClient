@@ -9,8 +9,8 @@ export const initSocket = (currentData) => {
         payload: null,
       });
 
-      const client = new W3CWebSocket("ws://ec2-65-2-75-232.ap-south-1.compute.amazonaws.com:5000//marketData");
-      // const client = new W3CWebSocket("ws://localhost:5000//marketData");
+      // const client = new W3CWebSocket("ws://ec2-65-2-75-232.ap-south-1.compute.amazonaws.com:5000//marketData");
+      const client = new W3CWebSocket("ws://localhost:5000//marketData");
 
       client.onopen = () => {
         console.log("websocket client connected");
@@ -37,6 +37,19 @@ export const initSocket = (currentData) => {
           } else if (data.Request.Exchange === "BANKNIFTY") {
             dispatch({
               type: ActionTypes.FETCH_DATA_COMPLETE_BANK,
+              payload: data.Result,
+            });
+          }
+        }
+        if(data.MessageType === "GetIndexData") {
+          if(data.Request.Exchange === 'NIFTY') {
+            dispatch({
+              type: ActionTypes.FETCH_INDEX_COMPLETE,
+              payload: data.Result,
+            });
+          }else if (data.Request.Exchange === "BANKNIFTY") {
+            dispatch({
+              type: ActionTypes.FETCH_INDEX_COMPLETE_BANK,
               payload: data.Result,
             });
           }

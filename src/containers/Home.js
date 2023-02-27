@@ -11,6 +11,8 @@ import {
   FilterOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, Switch, Select, Button } from "antd";
+import CandleStickChart from "../components/CandlStickChart";
+import DualLineChart from "../components/DualLineChart";
 const { Content, Sider } = Layout;
 
 function getItem(label, key, icon, children, onClick) {
@@ -31,6 +33,7 @@ const items = [
 ];
 const items1 = [
   getItem("Chart Type", "sub2", <RetweetOutlined />, [
+    getItem("Candle Stick", "CDL"),
     getItem("Standard Volume", "STD"),
     getItem("Percent Volume", "PER"),
   ]),
@@ -46,7 +49,7 @@ const Home = ({ currentData, setCurrentData }) => {
   const [interval, setInterval] = useState("60");
   const [duration, setDuration] = useState("15");
   const [isMultiAxis, setMultiAxis] = useState(false);
-  const [isSingleLine, setSingleLine] = useState(false)
+  const [isDualLine, setDualLine] = useState(false);
   const [requestType, setRequestType] = useState("GetMinuteData");
 
   const chartData = useSelector((state) => state.data);
@@ -55,6 +58,8 @@ const Home = ({ currentData, setCurrentData }) => {
     tickDataBank,
     minuteData,
     minuteDataBank,
+    indexMinData,
+    indexMinBankData,
     client,
     loading,
     currentMinTime,
@@ -75,8 +80,31 @@ const Home = ({ currentData, setCurrentData }) => {
       if (client) {
         client.send(JSON.stringify(data));
       }
+    } else if (key === "CDL") {
+      setRequestType("GetIndexData");
+      setDualLine(false)
+      setChartType(key);
+      const data = {
+        requestType: "GetIndexData",
+        exchange: exchange,
+        duration: duration,
+        subscribe: true,
+      };
+      if (client) {
+        client.send(JSON.stringify(data));
+      }
     } else {
       setChartType(key);
+      setRequestType("GetMinuteData");
+      const data = {
+        requestType: "GetMinuteData",
+        exchange: exchange,
+        duration: duration,
+        subscribe: true,
+      };
+      if (client) {
+        client.send(JSON.stringify(data));
+      }
     }
   };
 
@@ -121,6 +149,33 @@ const Home = ({ currentData, setCurrentData }) => {
     }
   };
 
+  const handleDualLine = (e) => {
+    setDualLine(e)
+    if(e) {
+      setRequestType("GetBothData");
+      const data = {
+        requestType: "GetBothData",
+        exchange: "Both",
+        duration: duration,
+        subscribe: true,
+      };
+      if (client) {
+        client.send(JSON.stringify(data));
+      }
+    }else {
+      setRequestType("GetMinuteData")
+      const data = {
+        requestType: "GetMinuteData",
+        exchange: exchange,
+        duration: duration,
+        subscribe: true,
+      };
+      if (client) {
+        client.send(JSON.stringify(data));
+      }
+    }
+  }
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Layout className="site-layout">
@@ -132,22 +187,50 @@ const Home = ({ currentData, setCurrentData }) => {
             {/* <TestChart /> */}
             {/* <AdvancedRealTimeChart height={600} theme="light" autosize></AdvancedRealTimeChart> */}
             {interval === "60" ? (
-              <AreaChart
-                data={exchange === "NIFTY" ? minuteData : minuteDataBank}
-                chartType={chartType}
-                multiAxis={isMultiAxis}
-                singleLine={isSingleLine}
-                exchange={exchange}
-                isMobile={false}
-                isLandscape={false}
-              />
+              <>
+                {chartType === "CDL" ? (
+                  <CandleStickChart
+                    candleData={
+                      exchange === "NIFTY" ? indexMinData : indexMinBankData
+                    }
+                    exchange={exchange}
+                    isLandscape={false}
+                    isMobile={false}
+                  />
+                ) : (
+                  <>
+                    {isDualLine ? (
+                      <DualLineChart
+                        data={minuteData}
+                        bankData={minuteDataBank}
+                        exchange={exchange}
+                        isMobile={false}
+                        isLandscape={false}
+                        multiAxis={isMultiAxis}
+                      />
+                    ) : (
+                      <AreaChart
+                        data={
+                          exchange === "NIFTY" ? minuteData : minuteDataBank
+                        }
+                        chartType={chartType}
+                        multiAxis={isMultiAxis}
+                        singleLine={isDualLine}
+                        exchange={exchange}
+                        isMobile={false}
+                        isLandscape={false}
+                      />
+                    )}
+                  </>
+                )}
+              </>
             ) : (
               <AreaChart
                 data={exchange === "NIFTY" ? tickData : tickDataBank}
                 chartType={chartType}
                 multiAxis={isMultiAxis}
                 exchange={exchange}
-                singleLine={isSingleLine}
+                singleLine={isDualLine}
                 isMobile={false}
                 isLandscape={false}
               />
@@ -168,7 +251,8 @@ const Home = ({ currentData, setCurrentData }) => {
         <Menu
           onClick={onClick}
           theme="dark"
-          defaultSelectedKeys={["1"]}
+          disabled={isDualLine}
+          defaultSelectedKeys={["NIFTY"]}
           mode="inline"
           items={items}
         />
@@ -176,7 +260,8 @@ const Home = ({ currentData, setCurrentData }) => {
         <Menu
           onClick={onClick}
           theme="dark"
-          defaultSelectedKeys={["1"]}
+          disabled={isDualLine}
+          defaultSelectedKeys={["STD"]}
           mode="inline"
           items={items1}
         />
@@ -196,18 +281,19 @@ const Home = ({ currentData, setCurrentData }) => {
                 <Switch
                   checked={isMultiAxis}
                   onChange={(e) => setMultiAxis(e)}
-                  disabled={isSingleLine}
+                  disabled={chartType === "CDL"}
                   title="Multi Axis Chart"
                 />
               </div>
               <div className="flex mb2">
                 <h4 style={{ margin: 0, marginRight: "8px" }}>
-                  Single Line Chart
+                  Dual Line Chart
                 </h4>
                 <Switch
-                  checked={isSingleLine}
-                  onChange={(e) => setSingleLine(e)}
-                  title="Single Line Chart"
+                  disabled={chartType === "CDL"}
+                  checked={isDualLine}
+                  onChange={handleDualLine}
+                  title="Dual Line Chart"
                 />
               </div>
               <div className="mb2">
