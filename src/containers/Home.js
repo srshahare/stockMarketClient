@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import AreaChart from "../components/AreaChart";
+import moment from "moment";
 import "./Home.css";
 import { useDispatch, useSelector } from "react-redux";
 import { bindActionCreators } from "redux";
@@ -10,7 +11,7 @@ import {
   RetweetOutlined,
   FilterOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Switch, Select, Button } from "antd";
+import { Layout, Menu, Switch, Select, Button, DatePicker } from "antd";
 import CandleStickChart from "../components/CandlStickChart";
 import DualLineChart from "../components/DualLineChart";
 const { Content, Sider } = Layout;
@@ -42,7 +43,10 @@ const items1 = [
 const Home = ({ currentData, setCurrentData }) => {
   const dispatch = useDispatch();
   const [collapsed, setCollapsed] = useState(false);
-  const { initSocket } = bindActionCreators(dataActions, dispatch);
+  const { initSocket, changeDuration, fetchIndexData } = bindActionCreators(
+    dataActions,
+    dispatch
+  );
 
   const [exchange, setExchange] = useState("NIFTY");
   const [chartType, setChartType] = useState("STD");
@@ -51,6 +55,7 @@ const Home = ({ currentData, setCurrentData }) => {
   const [isMultiAxis, setMultiAxis] = useState(false);
   const [isDualLine, setDualLine] = useState(false);
   const [requestType, setRequestType] = useState("GetMinuteData");
+  const [timeStamp, setTimeStamp] = useState();
 
   const chartData = useSelector((state) => state.data);
   const {
@@ -64,6 +69,7 @@ const Home = ({ currentData, setCurrentData }) => {
     loading,
     currentMinTime,
     currentTickTime,
+    websocket
   } = chartData;
 
   const onClick = (e) => {
@@ -80,9 +86,15 @@ const Home = ({ currentData, setCurrentData }) => {
       if (client) {
         client.send(JSON.stringify(data));
       }
+      if(!websocket) {
+        if(client) {
+          client.close()
+        }
+        fetchIndexData(key, interval, duration, timeStamp);
+      }
     } else if (key === "CDL") {
       setRequestType("GetIndexData");
-      setDualLine(false)
+      setDualLine(false);
       setChartType(key);
       const data = {
         requestType: "GetIndexData",
@@ -110,6 +122,7 @@ const Home = ({ currentData, setCurrentData }) => {
 
   const handleDuration = (e) => {
     setDuration(e);
+    changeDuration(e);
     const data = {
       requestType: requestType,
       exchange: exchange,
@@ -119,6 +132,12 @@ const Home = ({ currentData, setCurrentData }) => {
     setCurrentData(data);
     if (client) {
       client.send(JSON.stringify(data));
+    }
+    if(!websocket) {
+      if(client) {
+        client.close()
+      }
+      fetchIndexData(exchange, interval, e, timeStamp);
     }
   };
   const handleInterval = (e) => {
@@ -150,8 +169,8 @@ const Home = ({ currentData, setCurrentData }) => {
   };
 
   const handleDualLine = (e) => {
-    setDualLine(e)
-    if(e) {
+    setDualLine(e);
+    if (e) {
       setRequestType("GetBothData");
       const data = {
         requestType: "GetBothData",
@@ -162,8 +181,8 @@ const Home = ({ currentData, setCurrentData }) => {
       if (client) {
         client.send(JSON.stringify(data));
       }
-    }else {
-      setRequestType("GetMinuteData")
+    } else {
+      setRequestType("GetMinuteData");
       const data = {
         requestType: "GetMinuteData",
         exchange: exchange,
@@ -174,7 +193,39 @@ const Home = ({ currentData, setCurrentData }) => {
         client.send(JSON.stringify(data));
       }
     }
+  };
+
+  function disabledDate(current) {
+    // Can not select days after today
+    return current && current > moment().endOf("day");
   }
+
+  const handleSelectDate = (e) => {
+    const d = e._d;
+    const year = moment(d).year();
+    const month = moment(d).month();
+    const date = moment(d).date();
+    let dateStamp = moment([year, month, date, 9, 15, 0, 0]).unix();
+
+    const month1 = moment().month();
+    const date1 = moment().date();
+    const year1 = moment().year();
+    let currentStamp = moment([year1, month1, date1, 9, 15, 0, 0]).unix();
+
+    setTimeStamp(dateStamp)
+
+    if(dateStamp === currentStamp) {
+      // make socket live
+      initSocket(currentData)
+    }else {
+      // fetch stored data
+      if(client) {
+        client.close()
+      }
+      fetchIndexData(exchange, interval, duration, dateStamp);
+    }
+
+  };
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -246,7 +297,21 @@ const Home = ({ currentData, setCurrentData }) => {
         collapsed={collapsed}
         onCollapse={(value) => setCollapsed(value)}
       >
-        <div className="logo">M</div>
+        {/* <div className="logo">M</div> */}
+        <div
+          style={{
+            background: "#fff",
+            margin: "1rem",
+            borderRadius: "8px",
+            padding: "8px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <h3>Select Date:</h3>
+          <DatePicker onChange={handleSelectDate} disabledDate={disabledDate} />
+        </div>
 
         <Menu
           onClick={onClick}

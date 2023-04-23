@@ -3,12 +3,13 @@ import Chart from "react-apexcharts";
 import ApexCharts from "apexcharts";
 
 const CandleStickChart = ({ isLandscape, isMobile, exchange, candleData }) => {
-  const { data } = candleData;
-
+  const { data, CEPercent, PEPercent } = candleData;
   const state = {
     series: [
       {
+        name: "Index Data",
         data: data,
+        type: "candlestick",
       },
     ],
     options: {
@@ -75,12 +76,133 @@ const CandleStickChart = ({ isLandscape, isMobile, exchange, candleData }) => {
         // labels: {
         //   formatter: (value) => numFormatter(value),
         // },
-        opposite: false,
+        opposite: true,
         // tickAmount: 10,
         tooltip: {
           enabled: true,
         },
       },
+      tooltip: {
+        x: {
+          format: "hh:mm",
+        },
+      },
+    },
+  };
+
+  const state1 = {
+    series: [
+      {
+        name: "CE",
+        data: CEPercent,
+      },
+      {
+        name: "PE",
+        data: PEPercent,
+      },
+    ],
+    options: {
+      chart: {
+        toolbar: {
+          show: isMobile ? false : false,
+        },
+        zoom: {
+          autoScaleYaxis: true,
+        },
+        type: "area",
+        height: isMobile ? 350 : 680,
+        animations: {
+          enabled: true,
+          easing: "easeinout",
+          speed: 500,
+          animateGradually: {
+            enabled: true,
+            delay: 150,
+          },
+          dynamicAnimation: {
+            enabled: true,
+            speed: 350,
+          },
+        },
+      },
+      noData: {
+        text: "Loading...",
+        align: "center",
+        verticalAlign: "middle",
+        offsetX: 0,
+        offsetY: 0,
+        style: {
+          color: "#000000",
+          fontSize: "24px",
+          fontFamily: "Helvetica",
+        },
+      },
+      colors: ["#00c853", "#d50000"],
+      stroke: {
+        curve: "smooth",
+        width: 1.5,
+      },
+      title: {
+        text: "",
+        align: "left",
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      markers: {
+        // size: [2,2],
+        // colors: undefined,
+        // strokeWidth: 1,
+        // strokeOpacity: 0.9,
+        // strokeDashArray: 0,
+        // fillOpacity: 1,
+        // discrete: [],
+        // shape: "circle",
+        // radius: 10,
+        // showNullDataPoints: true,
+        size: 0,
+        hover: {
+          size: undefined,
+          sizeOffset: 5,
+        },
+        style: "hollow",
+      },
+      grid: {
+        padding: {
+          left: isMobile ? 8 : 8,
+        },
+      },
+      xaxis: {
+        labels: {
+          datetimeUTC: false,
+          format: "hh:mm",
+          offsetX: 0,
+        },
+        type: "datetime",
+        // tickAmount: 356,
+      },
+      yaxis: [
+        {
+          title: {
+            text: isMobile ? "" : "Percent Volume",
+          },
+          labels: {
+            formatter: (value) => numFormatter(value),
+          },
+          opposite: true,
+          tickAmount: 10,
+        },
+      ],
+      tooltip: {
+        x: {
+          format: "dd MMM yyyy hh:mm:ss",
+        },
+      },
+      //   yaxis: {
+      //     tooltip: {
+      //       enabled: true,
+      //     },
+      //   },
     },
   };
 
@@ -100,14 +222,36 @@ const CandleStickChart = ({ isLandscape, isMobile, exchange, candleData }) => {
   }
 
   return (
-    <Chart
-      options={state.options}
-      series={state.series}
-      type="candlestick"
-      width="100%"
-      style={{ paddingTop: isLandscape ? "2rem" : "" }}
-      height={isMobile ? (isLandscape ? window.screen.height - 50 : 350) : 680}
-    />
+    <div>
+      <Chart
+        options={state.options}
+        series={state.series}
+        type="candlestick"
+        width="100%"
+        style={{ paddingTop: isLandscape ? "2rem" : "" }}
+        height={
+          isMobile
+            ? isLandscape
+              ? window.screen.height / 2 - 50
+              : 350
+            : 680 / 2
+        }
+      />
+      <Chart
+        options={state1.options}
+        series={state1.series}
+        type="area"
+        width="100%"
+        style={{ paddingTop: isLandscape ? "2rem" : "" }}
+        height={
+          isMobile
+            ? isLandscape
+              ? window.screen.height / 2 - 50
+              : 350
+            : 680 / 2
+        }
+      />
+    </div>
   );
 };
 

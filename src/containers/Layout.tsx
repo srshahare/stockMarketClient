@@ -10,7 +10,7 @@ const Layout = () => {
     const { initSocket } = bindActionCreators(dataActions, dispatch)
 
     const chartData = useSelector((state: any) => state.data);
-    const { callDone, client } = chartData
+    const { callDone, client, websocket } = chartData
 
     const [isMobileView, setMobileView] = useState(false)
     const [isLandscape, setLandscape] = useState(false);
@@ -62,10 +62,10 @@ const Layout = () => {
     }, [])
 
     useEffect(() => {
-        if (!callDone) {
+        if (!callDone && websocket) {
             initSocket(currentData)
         }
-    }, [callDone]);
+    }, [callDone, websocket]);
 
 
     return (
